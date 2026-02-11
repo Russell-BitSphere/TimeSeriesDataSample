@@ -4,16 +4,26 @@ using System.Collections.Generic;
 namespace TimeSeriesDataSample.Services;
 
 /// <summary>
-/// Decodes a binary blob into a sequence of double-precision samples.
+/// Provides helper methods for decoding binary blobs into numeric time-series data.
 /// The blob is expected to contain a packed sequence of IEEE-754 doubles.
 /// </summary>
-public sealed class TimeSeriesDecoder
+public static class TimeSeriesDecoder
 {
-    public IReadOnlyList<double> DecodeDoubles(byte[] blob)
+    /// <summary>
+    /// Decodes a binary blob into a sequence of double-precision samples.
+    /// </summary>
+    /// <param name="blob">A byte array containing packed IEEE-754 double values.</param>
+    /// <returns>A read-only list of decoded double samples.</returns>
+    /// <exception cref="FormatException">
+    /// Thrown when the blob length is not evenly divisible by the size of <see cref="double"/>.
+    /// </exception>
+    public static IReadOnlyList<double> DecodeDoubles(byte[] blob)
     {
+        // Return an empty list if the blob is null or empty.
         if (blob is null || blob.Length == 0)
             return Array.Empty<double>();
 
+        // Validate that the array length aligns with 8-byte doubles.
         if (blob.Length % sizeof(double) != 0)
         {
             throw new FormatException(
@@ -21,13 +31,14 @@ public sealed class TimeSeriesDecoder
         }
 
         var span = new ReadOnlySpan<byte>(blob);
-        var count = span.Length / sizeof(double);
+        int count = span.Length / sizeof(double);
+
         var result = new List<double>(count);
 
-        for (var i = 0; i < count; i++)
+        // Decode the bytes into doubles
+        for (int i = 0; i < count; i++)
         {
-            var offset = i * sizeof(double);
-            var value = BitConverter.ToDouble(span.Slice(offset, sizeof(double)));
+            var value = BitConverter.ToDouble(span.Slice(i * sizeof(double), sizeof(double)));
             result.Add(value);
         }
 

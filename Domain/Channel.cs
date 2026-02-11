@@ -37,12 +37,13 @@ public sealed class Channel
     public string DataHash { get; }
 
     public Channel(
+        Guid id,
         Guid simulationRunId,
         int lapNumber,
         string channelName,
         string dataHash)
     {
-        Id = Guid.NewGuid();
+        Id = id;
         SimulationRunId = simulationRunId;
         LapNumber = lapNumber;
 

@@ -14,7 +14,6 @@ public sealed class TimeSeriesService
 {
     private readonly IChannelRepository _channelRepository;
     private readonly ITimeSeriesBlobRepository _blobRepository;
-    private readonly TimeSeriesDecoder _decoder;
 
     public TimeSeriesService(
         IChannelRepository channelRepository,
@@ -23,7 +22,6 @@ public sealed class TimeSeriesService
     {
         _channelRepository = channelRepository;
         _blobRepository = blobRepository;
-        _decoder = decoder;
     }
 
     /// <summary>
@@ -34,12 +32,11 @@ public sealed class TimeSeriesService
     public async Task<IReadOnlyList<double>> GetTimeSeriesAsync(
         Guid simulationRunId,
         int lapNumber,
-        string channelName,
-        CancellationToken ct = default)
+        string channelName)
     {
         // Unknown run / lap / channel -> no data.
         var channel = await _channelRepository
-            .GetChannelAsync(simulationRunId, lapNumber, channelName, ct)
+            .GetChannelAsync(simulationRunId, lapNumber, channelName)
             .ConfigureAwait(false);
 
         if (channel is null)
@@ -52,6 +49,6 @@ public sealed class TimeSeriesService
         if (blob is null)
             return Array.Empty<double>();
 
-        return _decoder.DecodeDoubles(blob);
+        return TimeSeriesDecoder.DecodeDoubles(blob);
     }
 }

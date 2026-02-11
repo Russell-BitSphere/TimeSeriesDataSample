@@ -19,6 +19,6 @@ public interface IChannelRepository
     Task<Channel?> GetChannelAsync(
         Guid simulationRunId,
         int lapNumber,
-        string channelName,
+        string channelName
         CancellationToken ct = default);
 }
